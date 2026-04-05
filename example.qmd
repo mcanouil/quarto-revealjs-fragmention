@@ -1,0 +1,84 @@
+---
+title: "Fragmention"
+subtitle: "Quarto Extension"
+authors:
+  - name: "Mickaël CANOUIL, _Ph.D._"
+    orcid: "0000-0002-3396-4549"
+    url: "https://mickael.canouil.fr"
+format:
+  revealjs:
+    output-file: index
+filters:
+  - fragmention
+---
+
+## Unordered List
+
+- []{.fragment fragment-index="1"} Technique spectroscopique permettant d'analyser :
+  - []{.fragment fragment-index="2"} la composition chimique.
+  - []{.fragment fragment-index="3"} la structure moléculaire.
+
+## Ordered List
+
+1. []{.fragment fragment-index="1"} Prepare samples.
+2. []{.fragment fragment-index="2"} Run analysis.
+3. []{.fragment fragment-index="3"} Interpret results.
+
+## Fragment Styles
+
+- []{.fragment .fade-in fragment-index="1"} Fade in.
+- []{.fragment .highlight-red fragment-index="2"} Highlight red.
+- []{.fragment .grow fragment-index="3"} Grow.
+
+## Mixed List
+
+- A normal item without a fragment.
+- []{.fragment fragment-index="1"} A fragment item.
+- Another normal item.
+- []{.fragment fragment-index="2"} Another fragment item.
+
+## List-Table with Row Fragments
+
+::: {.list-table}
+- - **Technique**
+  - **Application**
+
+- []{.fragment fragment-index="1"}
+  - Spectroscopie IR
+  - Identification de groupes fonctionnels.
+
+- []{.fragment fragment-index="2"}
+  - Spectroscopie UV-Vis
+  - Analyse de chromophores.
+
+- []{.fragment fragment-index="3"}
+  - Spectrométrie de masse
+  - Détermination de masse moléculaire.
+:::
+
+## List-Table with Cell Fragments
+
+::: {.list-table}
+- - **Technique**
+  - **Application**
+
+- - []{.fragment fragment-index="1"} Spectroscopie IR
+  - []{.fragment fragment-index="2"} Identification de groupes fonctionnels.
+
+- - []{.fragment fragment-index="1"} Spectroscopie UV-Vis
+  - []{.fragment fragment-index="2"} Analyse de chromophores.
+
+- - []{.fragment fragment-index="3"} Spectrométrie de masse
+  - []{.fragment fragment-index="3"} Détermination de masse moléculaire.
+:::
+
+## Two-column Layout
+
+::: {layout-ncol="2"}
+
+- []{.fragment fragment-index="1"} Technique spectroscopique permettant d'analyser :
+  - []{.fragment fragment-index="2"} la composition chimique.
+  - []{.fragment fragment-index="3"} la structure moléculaire.
+
+[{{< placeholder 600 400 >}}]{.fragment fragment-index="2"}
+:::
