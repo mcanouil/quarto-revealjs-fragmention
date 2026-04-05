@@ -82,3 +82,40 @@ filters:
 
 [{{< placeholder 600 400 >}}]{.fragment fragment-index="2"}
 :::
+
+## Complex Fragments {.smaller}
+
+::: {layout="[[1, 1], [1, 2]]"}
+
+- []{.fragment fragment-index="1"} Technique spectroscopique permettant d'analyser :
+  - []{.fragment fragment-index="2"} la composition chimique.
+  - []{.fragment fragment-index="3"} la structure moléculaire.
+
+::: {.list-table .fragment fragment-index="2"}
+- - **Technique**
+  - **Application**
+
+- - []{.fragment fragment-index="3"} Spectroscopie IR
+  - []{.fragment fragment-index="3"} Identification de groupes fonctionnels.
+
+- - []{.fragment fragment-index="4"} Spectroscopie UV-Vis
+  - []{.fragment fragment-index="4"} Analyse de chromophores.
+
+- - []{.fragment fragment-index="5"} Spectrométrie de masse
+  - []{.fragment fragment-index="5"} Détermination de masse moléculaire.
+:::
+
+::: {.r-stack}
+::: {.fragment fragment-index="1" data-id="box1" style="background: #2780e3; width: 350px; height: 350px; border-radius: 200px;"}
+:::
+
+::: {.fragment fragment-index="3" data-id="box2" style="background: #3fb618; width: 250px; height: 250px; border-radius: 200px;"}
+:::
+
+::: {.fragment fragment-index="5" data-id="box3" style="background: #e83e8c; width: 150px; height: 150px; border-radius: 200px;"}
+:::
+:::
+
+[{{< placeholder 600 400 >}}]{.fragment fragment-index="2"}
+
+:::
