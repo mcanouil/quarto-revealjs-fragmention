@@ -5,6 +5,8 @@ This makes list markers (bullets and numbers) appear and disappear together with
 
 Also compatible with [`pandoc-ext/list-table`](https://github.com/pandoc-ext/list-table) for adding fragments to table cells and rows.
 
+![Side-by-side comparison of native RevealJS fragments (left) and Fragmention (right)](comparison.gif)
+
 ## Installation
 
 ```bash
