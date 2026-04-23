@@ -3,7 +3,6 @@
 --- @license MIT License
 --- @copyright 2026 Mickaël Canouil
 --- @author Mickaël Canouil
---- @version 0.0.0
 --- @brief Hoist fragment attributes from empty marker spans to parent elements.
 --- @description Moves .fragment class and fragment-index from empty inline
 ---   Spans to their parent <li> elements in RevealJS presentations.
