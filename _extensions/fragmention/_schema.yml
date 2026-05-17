@@ -7,7 +7,7 @@
 
 # Element attributes accepted by the filter on Pandoc elements.
 # Used in: []{.fragment fragment-index="1"} at the start of a list item.
-element-attributes:
+attributes:
   fragment:
     fragment-index:
       type: string
