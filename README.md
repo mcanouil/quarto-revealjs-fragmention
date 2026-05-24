@@ -10,7 +10,7 @@ Also compatible with [`pandoc-ext/list-table`](https://github.com/pandoc-ext/lis
 ## Installation
 
 ```bash
-quarto add mcanouil/quarto-revealjs-fragmention@0.1.0
+quarto add mcanouil/quarto-revealjs-fragmention@0.2.0
 ```
 
 This will install the extension under the `_extensions` subdirectory.

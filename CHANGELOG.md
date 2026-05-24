@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0 (2026-05-24)
+
 ### New Features
 
 - feat: Hoist fragment attributes from an empty marker span to the rendered `<dd>` of a definition list, so a glossary or Q&A definition reveals as one fragment.
