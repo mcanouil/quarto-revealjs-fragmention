@@ -57,6 +57,31 @@ Works with ordered lists too:
 3. []{.fragment fragment-index="3"} Third step.
 ```
 
+### Definition lists
+
+Place an empty `.fragment` span at the start of a definition to reveal the whole definition (and its term) as one fragment.
+This is handy for glossary and question-and-answer slides.
+
+```markdown
+Spectroscopy
+: []{.fragment fragment-index="1"} A technique to analyse chemical composition.
+
+Chromatography
+: []{.fragment fragment-index="2"} A technique to separate mixtures.
+```
+
+The filter removes the empty span and applies its classes and attributes to the `<dd>` element.
+
+### Blockquotes
+
+Place a leading empty `.fragment` span in a blockquote to reveal the whole quote as one fragment.
+
+```markdown
+> []{.fragment fragment-index="1"} The whole quote reveals together.
+```
+
+The filter removes the empty span and applies its classes and attributes to the `<blockquote>` element.
+
 ### list-table compatibility
 
 When used with [`pandoc-ext/list-table`](https://github.com/pandoc-ext/list-table), ensure `list-table` runs first:

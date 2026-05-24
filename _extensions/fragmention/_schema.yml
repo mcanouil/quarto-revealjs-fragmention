@@ -2,11 +2,13 @@
 # Describes element attributes for IDE tooling and runtime validation.
 #
 # The filter detects empty Spans with .fragment class at the start of list
-# items and hoists their attributes to the parent <li> element.
+# items, definitions and blockquotes and hoists their attributes to the parent
+# <li>, <dd> or <blockquote> element.
 # No extension-level options are required.
 
 # Element attributes accepted by the filter on Pandoc elements.
-# Used in: []{.fragment fragment-index="1"} at the start of a list item.
+# Used in: []{.fragment fragment-index="1"} at the start of a list item,
+# definition or blockquote.
 attributes:
   fragment:
     fragment-index:
