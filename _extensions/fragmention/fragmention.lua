@@ -5,9 +5,9 @@
 --- @author Mickaël Canouil
 --- @brief Hoist fragment attributes from empty marker spans to parent elements.
 --- @description Moves .fragment class and fragment-index from empty inline
----   Spans to their parent <li> elements in RevealJS presentations.
----   Also renames fragment-index to data-fragment-index on Table cells/rows
----   for compatibility with pandoc-ext/list-table.
+---   Spans to their parent <li>, <dd> and <blockquote> elements in RevealJS
+---   presentations. Also renames fragment-index to data-fragment-index on
+---   Table cells/rows for compatibility with pandoc-ext/list-table.
 
 --- Whether the table fragment CSS has already been injected.
 --- @type boolean
@@ -59,7 +59,7 @@ end
 --- Maps fragment-index to data-fragment-index for RevealJS.
 --- @param span pandoc.Span
 --- @return string
-local function build_li_attrs(span)
+local function build_fragment_attrs(span)
   local parts = {}
 
   if #span.classes > 0 then
@@ -75,6 +75,22 @@ local function build_li_attrs(span)
   end
 
   return table.concat(parts, ' ')
+end
+
+--- Build an HTML opening tag for a wrapper element with hoisted fragment
+--- attributes from a Span. When the Span is nil, a bare opening tag is emitted.
+--- @param tag string The element name (e.g. "li", "dd", "blockquote")
+--- @param span pandoc.Span|nil The fragment span, or nil
+--- @return string
+local function open_fragment_element(tag, span)
+  if not span then
+    return '<' .. tag .. '>'
+  end
+  local attrs = build_fragment_attrs(span)
+  if attrs == '' then
+    return '<' .. tag .. '>'
+  end
+  return '<' .. tag .. ' ' .. attrs .. '>'
 end
 
 --- Render Pandoc Blocks to an HTML string, trimming whitespace.
@@ -181,14 +197,8 @@ render_bullet_list = function(list)
 
   for _, item in ipairs(list.content) do
     local frag_span = get_item_fragment_span(item)
-    if frag_span then
-      local attrs = build_li_attrs(frag_span)
-      local content = render_item_content(item, true)
-      table.insert(lines, '<li ' .. attrs .. '>' .. content .. '</li>')
-    else
-      local content = render_item_content(item, false)
-      table.insert(lines, '<li>' .. content .. '</li>')
-    end
+    local content = render_item_content(item, frag_span ~= nil)
+    table.insert(lines, open_fragment_element('li', frag_span) .. content .. '</li>')
   end
 
   table.insert(lines, '</ul>')
@@ -227,18 +237,65 @@ render_ordered_list = function(list)
 
   for _, item in ipairs(list.content) do
     local frag_span = get_item_fragment_span(item)
-    if frag_span then
-      local attrs = build_li_attrs(frag_span)
-      local content = render_item_content(item, true)
-      table.insert(lines, '<li ' .. attrs .. '>' .. content .. '</li>')
-    else
-      local content = render_item_content(item, false)
-      table.insert(lines, '<li>' .. content .. '</li>')
-    end
+    local content = render_item_content(item, frag_span ~= nil)
+    table.insert(lines, open_fragment_element('li', frag_span) .. content .. '</li>')
   end
 
   table.insert(lines, '</ol>')
   return table.concat(lines, '\n')
+end
+
+--- Check whether any definition in a DefinitionList has a fragment span at
+--- the start of its first block.
+--- @param items table List of {term, definitions} pairs
+--- @return boolean
+local function definition_list_has_fragments(items)
+  for _, item in ipairs(items) do
+    local definitions = item[2]
+    for _, definition in ipairs(definitions) do
+      if get_item_fragment_span(definition) then
+        return true
+      end
+    end
+  end
+  return false
+end
+
+--- Render a DefinitionList to HTML with fragment attributes hoisted to <dd>.
+--- Each definition that starts with an empty fragment span has its attributes
+--- moved to the rendered <dd>, so the whole definition reveals as one fragment.
+--- @param list pandoc.DefinitionList
+--- @return string
+local function render_definition_list(list)
+  local lines = { '<dl>' }
+
+  for _, item in ipairs(list.content) do
+    local term = item[1]
+    local definitions = item[2]
+
+    local dt_html = render_blocks_html(pandoc.Blocks({ pandoc.Plain(term) }))
+    table.insert(lines, '<dt>' .. dt_html .. '</dt>')
+
+    for _, definition in ipairs(definitions) do
+      local frag_span = get_item_fragment_span(definition)
+      local content = render_item_content(definition, frag_span ~= nil)
+      table.insert(lines, open_fragment_element('dd', frag_span) .. content .. '</dd>')
+    end
+  end
+
+  table.insert(lines, '</dl>')
+  return table.concat(lines, '\n')
+end
+
+--- Render a BlockQuote to HTML with fragment attributes hoisted to <blockquote>.
+--- A leading empty fragment span in the first block reveals the whole quote
+--- as a single fragment.
+--- @param quote pandoc.BlockQuote
+--- @param frag_span pandoc.Span The fragment span
+--- @return string
+local function render_block_quote(quote, frag_span)
+  local content = render_item_content(quote.content, true)
+  return open_fragment_element('blockquote', frag_span) .. content .. '</blockquote>'
 end
 
 --- Rename fragment-index to data-fragment-index on an Attr object.
@@ -314,6 +371,25 @@ return {
         return el
       end
       return pandoc.RawBlock('html', render_ordered_list(el))
+    end,
+    DefinitionList = function(el)
+      if not is_revealjs() then
+        return el
+      end
+      if not definition_list_has_fragments(el.content) then
+        return el
+      end
+      return pandoc.RawBlock('html', render_definition_list(el))
+    end,
+    BlockQuote = function(el)
+      if not is_revealjs() then
+        return el
+      end
+      local frag_span = get_item_fragment_span(el.content)
+      if not frag_span then
+        return el
+      end
+      return pandoc.RawBlock('html', render_block_quote(el, frag_span))
     end,
     Table = function(el)
       if not is_revealjs() then

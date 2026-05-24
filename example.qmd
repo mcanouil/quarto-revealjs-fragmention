@@ -30,6 +30,21 @@ filters:
 - []{.fragment .highlight-red fragment-index="2"} Highlight red.
 - []{.fragment .grow fragment-index="3"} Grow.
 
+## Definition List
+
+Spectroscopie IR
+: []{.fragment fragment-index="1"} Identification de groupes fonctionnels.
+
+Spectroscopie UV-Vis
+: []{.fragment fragment-index="2"} Analyse de chromophores.
+
+Spectrométrie de masse
+: []{.fragment fragment-index="3"} Détermination de masse moléculaire.
+
+## Blockquote
+
+> []{.fragment fragment-index="1"} La spectroscopie révèle la composition chimique.
+
 ## Mixed List
 
 - A normal item without a fragment.
