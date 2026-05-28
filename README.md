@@ -106,6 +106,32 @@ Fragmention then renames `fragment-index` to `data-fragment-index` on table elem
       :::
 ```
 
+### Auto-numbering
+
+Set `fragmention.auto-number: true` in document metadata to assign sequential `fragment-index` values to every list item.
+This makes every bullet a fragment without explicit markers, useful for slides that reveal a list one item at a time.
+
+```yaml
+fragmention:
+  auto-number: true
+```
+
+Items that already carry a `fragment-index` are left untouched.
+Nested lists are numbered depth-first, so a parent bullet reveals before its children.
+
+### Validation
+
+Set `fragmention.validate: true` to enable a per-slide validation pass.
+A warning is emitted when a slide contains duplicate `fragment-index` values, or when a slide mixes fragments with and without an explicit `fragment-index`.
+
+```yaml
+fragmention:
+  validate: true
+```
+
+Validation only inspects fragments hoisted by this filter (lists, definitions, blockquotes).
+It does not flag `.fragment` spans or divs that are already RevealJS native.
+
 ## Example
 
 Here is the source code for a minimal example: [example.qmd](example.qmd).

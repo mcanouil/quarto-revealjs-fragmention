@@ -1,10 +1,29 @@
 # _schema.yml for "fragmention" filter extension
-# Describes element attributes for IDE tooling and runtime validation.
+# Describes element attributes and document-level options for IDE tooling
+# and runtime validation.
 #
 # The filter detects empty Spans with .fragment class at the start of list
 # items, definitions and blockquotes and hoists their attributes to the parent
 # <li>, <dd> or <blockquote> element.
-# No extension-level options are required.
+
+# Document-level metadata options under the `fragmention:` key.
+metadata:
+  fragmention:
+    auto-number:
+      type: boolean
+      default: false
+      description: |
+        When true, every list item in a RevealJS deck becomes a fragment.
+        Sequential fragment-index values are assigned in source order
+        (depth-first, parent before children). Items already carrying a
+        fragment-index are left untouched.
+    validate:
+      type: boolean
+      default: false
+      description: |
+        When true, a per-slide validation pass emits warnings for duplicate
+        fragment-index values and for slides that mix fragments with and
+        without an explicit fragment-index.
 
 # Element attributes accepted by the filter on Pandoc elements.
 # Used in: []{.fragment fragment-index="1"} at the start of a list item,
