@@ -342,9 +342,8 @@ local render_bullet_list_html, render_ordered_list_html
 --- Nested fragment-bearing lists are rendered directly to HTML strings to
 --- avoid round-tripping through pandoc.write for each nesting level.
 --- @param blocks pandoc.Blocks Stripped item blocks
---- @param ledger { seen: table<string, integer>, has_index: boolean, has_missing: boolean, slide: string }|nil
 --- @return string
-local function render_item_html(blocks, ledger)
+local function render_item_html(blocks)
   if #blocks == 0 then
     return ''
   end
@@ -359,9 +358,9 @@ local function render_item_html(blocks, ledger)
   for i = 1, #blocks do
     local block = blocks[i]
     if block.t == 'BulletList' then
-      table.insert(parts, render_bullet_list_html(block, ledger))
+      table.insert(parts, render_bullet_list_html(block))
     elseif block.t == 'OrderedList' then
-      table.insert(parts, render_ordered_list_html(block, ledger))
+      table.insert(parts, render_ordered_list_html(block))
     elseif (block.t == 'Plain' or block.t == 'Para') and i == 1 then
       table.insert(parts, render_inlines_html(block.content))
     else
@@ -371,28 +370,37 @@ local function render_item_html(blocks, ledger)
   return table.concat(parts, '\n')
 end
 
---- Render a BulletList to HTML with fragment attributes hoisted to <li>.
---- @param list pandoc.BulletList
---- @param ledger { seen: table<string, integer>, has_index: boolean, has_missing: boolean, slide: string }|nil
---- @return string
-render_bullet_list_html = function(list, ledger)
-  local lines = { '<ul>' }
-  for _, item in ipairs(list.content) do
+--- Render the items of a BulletList or OrderedList as `<li>` lines, hoisting
+--- fragment attributes from a leading marker span (or an auto-injected one).
+--- @param items table List of items (each is a list of Blocks)
+--- @return string[] Lines to append between the list's opening and closing tags
+local function render_list_items_html(items)
+  local lines = {}
+  for _, item in ipairs(items) do
     local frag_span = get_item_fragment_span(item)
+    local had_marker = frag_span ~= nil
     if not frag_span then
       frag_span = inject_auto_marker(item)
     end
     if frag_span then
       maybe_auto_number(frag_span)
-      if ledger then
-        record_index(frag_span, ledger)
-      end
     end
-    local stripped = get_item_fragment_span(item) and strip_leading_fragment(item) or pandoc.Blocks(item)
+    local stripped = had_marker and strip_leading_fragment(item) or pandoc.Blocks(item)
     table.insert(lines,
       open_fragment_element('li', frag_span)
-      .. render_item_html(stripped, ledger)
+      .. render_item_html(stripped)
       .. '</li>')
+  end
+  return lines
+end
+
+--- Render a BulletList to HTML with fragment attributes hoisted to <li>.
+--- @param list pandoc.BulletList
+--- @return string
+render_bullet_list_html = function(list)
+  local lines = { '<ul>' }
+  for _, line in ipairs(render_list_items_html(list.content)) do
+    table.insert(lines, line)
   end
   table.insert(lines, '</ul>')
   return table.concat(lines, '\n')
@@ -401,9 +409,8 @@ end
 --- Render an OrderedList to HTML with fragment attributes hoisted to <li>.
 --- Preserves start number and list type.
 --- @param list pandoc.OrderedList
---- @param ledger { seen: table<string, integer>, has_index: boolean, has_missing: boolean, slide: string }|nil
 --- @return string
-render_ordered_list_html = function(list, ledger)
+render_ordered_list_html = function(list)
   local type_map = {
     Decimal = '1',
     LowerAlpha = 'a',
@@ -428,22 +435,8 @@ render_ordered_list_html = function(list, ledger)
   ol_open = ol_open .. '>'
 
   local lines = { ol_open }
-  for _, item in ipairs(list.content) do
-    local frag_span = get_item_fragment_span(item)
-    if not frag_span then
-      frag_span = inject_auto_marker(item)
-    end
-    if frag_span then
-      maybe_auto_number(frag_span)
-      if ledger then
-        record_index(frag_span, ledger)
-      end
-    end
-    local stripped = get_item_fragment_span(item) and strip_leading_fragment(item) or pandoc.Blocks(item)
-    table.insert(lines,
-      open_fragment_element('li', frag_span)
-      .. render_item_html(stripped, ledger)
-      .. '</li>')
+  for _, line in ipairs(render_list_items_html(list.content)) do
+    table.insert(lines, line)
   end
   table.insert(lines, '</ol>')
   return table.concat(lines, '\n')
@@ -451,9 +444,8 @@ end
 
 --- Render a DefinitionList to HTML with fragment attributes hoisted to <dd>.
 --- @param list pandoc.DefinitionList
---- @param ledger { seen: table<string, integer>, has_index: boolean, has_missing: boolean, slide: string }|nil
 --- @return string
-local function render_definition_list_html(list, ledger)
+local function render_definition_list_html(list)
   local lines = { '<dl>' }
   for _, item in ipairs(list.content) do
     local term = item[1]
@@ -463,14 +455,11 @@ local function render_definition_list_html(list, ledger)
       local frag_span = get_item_fragment_span(definition)
       if frag_span then
         maybe_auto_number(frag_span)
-        if ledger then
-          record_index(frag_span, ledger)
-        end
       end
       local stripped = frag_span and strip_leading_fragment(definition) or pandoc.Blocks(definition)
       table.insert(lines,
         open_fragment_element('dd', frag_span)
-        .. render_item_html(stripped, ledger)
+        .. render_item_html(stripped)
         .. '</dd>')
     end
   end
@@ -665,7 +654,7 @@ return {
       if not auto_number and not list_has_fragments(el.content) then
         return el
       end
-      return pandoc.RawBlock('html', render_bullet_list_html(el, nil)), false
+      return pandoc.RawBlock('html', render_bullet_list_html(el)), false
     end,
     OrderedList = function(el)
       if not is_revealjs() then
@@ -674,7 +663,7 @@ return {
       if not auto_number and not list_has_fragments(el.content) then
         return el
       end
-      return pandoc.RawBlock('html', render_ordered_list_html(el, nil)), false
+      return pandoc.RawBlock('html', render_ordered_list_html(el)), false
     end,
     DefinitionList = function(el)
       if not is_revealjs() then
@@ -683,7 +672,7 @@ return {
       if not definition_list_has_fragments(el.content) then
         return el
       end
-      return pandoc.RawBlock('html', render_definition_list_html(el, nil)), false
+      return pandoc.RawBlock('html', render_definition_list_html(el)), false
     end,
     BlockQuote = function(el)
       if not is_revealjs() then
@@ -695,7 +684,7 @@ return {
       end
       local stripped = strip_leading_fragment(el.content)
       local html = open_fragment_element('blockquote', frag_span)
-        .. render_item_html(stripped, nil)
+        .. render_item_html(stripped)
         .. '</blockquote>'
       return pandoc.RawBlock('html', html), false
     end,
