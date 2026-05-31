@@ -1,35 +1,44 @@
-# _schema.yml for "fragmention" filter extension
-# Describes element attributes and document-level options for IDE tooling
-# and runtime validation.
-#
-# The filter detects empty Spans with .fragment class at the start of list
-# items, definitions and blockquotes and hoists their attributes to the parent
-# <li>, <dd> or <blockquote> element.
+# Schema for the fragmention extension
+$schema: https://m.canouil.dev/quarto-wizard/assets/schema/v2/extension-schema.json
 
-# Document-level metadata options under the `fragmention:` key.
-metadata:
+# Document-level options, read from the bare top-level `fragmention:` key:
+#   fragmention:
+#     auto-number: true
+#     validate: true
+options:
   fragmention:
-    auto-number:
-      type: boolean
-      default: false
-      description: |
-        When true, every list item in a RevealJS deck becomes a fragment.
-        Sequential fragment-index values are assigned in source order
-        (depth-first, parent before children). Items already carrying a
-        fragment-index are left untouched.
-    validate:
-      type: boolean
-      default: false
-      description: |
-        When true, a per-slide validation pass emits warnings for duplicate
-        fragment-index values and for slides that mix fragments with and
-        without an explicit fragment-index.
+    type: object
+    additionalProperties: false
+    title: Fragmention document options
+    description: "Document-level options for the fragmention filter, read from the top-level fragmention key."
+    properties:
+      auto-number:
+        type: boolean
+        default: false
+        title: Sequential auto-numbering
+        description: "When true, every list item in a RevealJS deck becomes a fragment with a sequential fragment-index assigned in source order, leaving items that already carry a fragment-index untouched."
+      validate:
+        type: boolean
+        default: false
+        title: Fragment index validation
+        description: "When true, a per-slide validation pass warns on duplicate fragment-index values and on slides that mix fragments with and without an explicit fragment-index."
 
-# Element attributes accepted by the filter on Pandoc elements.
-# Used in: []{.fragment fragment-index="1"} at the start of a list item,
-# definition or blockquote.
+# Attributes accepted on an empty fragment marker span, e.g.:
+#   []{.fragment fragment-index="1"} at the start of a list item, definition or blockquote.
 attributes:
   fragment:
     fragment-index:
       type: string
-      description: "RevealJS fragment index controlling the order of appearance."
+      title: Fragment order index
+      description: "RevealJS fragment index controlling the order in which the hoisted fragment appears on the slide."
+      examples:
+        - "1"
+        - "2"
+
+# CSS classes handled by the filter.
+classes:
+  fragment:
+    description: "Mark an empty leading marker span so its attributes are hoisted to the parent list item, definition, blockquote, or table cell or row."
+
+formats:
+  revealjs: {}
