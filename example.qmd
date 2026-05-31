@@ -87,6 +87,15 @@ Spectrométrie de masse
   - []{.fragment fragment-index="3"} Détermination de masse moléculaire.
 :::
 
+## Fragments Without Indices
+
+When no `fragment-index` is set, fragments reveal in source order.
+This is useful for short lists where ordering is obvious.
+
+- []{.fragment} Step one.
+- []{.fragment} Step two.
+- []{.fragment} Step three.
+
 ## Two-column Layout
 
 ::: {layout-ncol="2"}

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Bug Fixes
+
+- fix: Strip every leading whitespace token (`Space`, `SoftBreak`, `LineBreak`) after removing the empty fragment marker, not just the first one, so marker spans on their own line do not leave whitespace artefacts.
+- fix: Escape HTML special characters in hoisted class, identifier and attribute values, so values containing `&`, `<`, `>` or `"` produce well-formed output.
+
+### Internal Changes
+
+- refactor: Walk lists with a top-down AST traversal that builds nested HTML in a single pass, avoiding repeated `pandoc.write()` round-trips through `RawBlock` at every nesting level.
+- chore: Reset module-level state (`css_injected`) in the `Meta` pass so batch renders do not carry state between documents.
+
 ## 0.2.0 (2026-05-24)
 
 ### New Features
