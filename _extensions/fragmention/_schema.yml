@@ -1,28 +1,6 @@
 # Schema for the fragmention extension
 $schema: https://m.canouil.dev/quarto-wizard/assets/schema/v2/extension-schema.json
 
-# Document-level options, read from the bare top-level `fragmention:` key:
-#   fragmention:
-#     auto-number: true
-#     validate: true
-options:
-  fragmention:
-    type: object
-    additionalProperties: false
-    title: Fragmention document options
-    description: "Document-level options for the fragmention filter, read from the top-level fragmention key."
-    properties:
-      auto-number:
-        type: boolean
-        default: false
-        title: Sequential auto-numbering
-        description: "When true, every list item in a RevealJS deck becomes a fragment with a sequential fragment-index assigned in source order, leaving items that already carry a fragment-index untouched."
-      validate:
-        type: boolean
-        default: false
-        title: Fragment index validation
-        description: "When true, a per-slide validation pass warns on duplicate fragment-index values and on slides that mix fragments with and without an explicit fragment-index."
-
 # Attributes accepted on an empty fragment marker span, e.g.:
 #   []{.fragment fragment-index="1"} at the start of a list item, definition or blockquote.
 attributes:

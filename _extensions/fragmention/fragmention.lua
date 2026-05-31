@@ -7,14 +7,7 @@
 --- @description Moves .fragment class and fragment-index from empty inline
 ---   Spans to their parent <li>, <dd> and <blockquote> elements in RevealJS
 ---   presentations. Renames fragment-index to data-fragment-index on Table
----   cells/rows for compatibility with pandoc-ext/list-table. Also offers an
----   optional auto-numbering mode and a validation pass that flags duplicate
----   or mixed fragment indices.
-
---- Extension name constant used in log messages.
-local EXTENSION_NAME = 'fragmention'
-
-local log = require(quarto.utils.resolve_path('_modules/logging.lua'):gsub('%.lua$', ''))
+---   cells/rows for compatibility with pandoc-ext/list-table.
 
 -- ============================================================================
 -- MODULE-LEVEL STATE
@@ -26,51 +19,15 @@ local log = require(quarto.utils.resolve_path('_modules/logging.lua'):gsub('%.lu
 --- @type boolean
 local css_injected = false
 
---- Whether sequential auto-numbering is enabled via metadata.
---- @type boolean
-local auto_number = false
-
---- Whether the validation pass is enabled via metadata.
---- @type boolean
-local validate_indices = false
-
---- Counter for sequential auto-numbering across the document.
---- @type integer
-local auto_number_counter = 0
-
 -- ============================================================================
 -- METADATA HANDLING
 -- ============================================================================
 
---- Read a boolean option from a metadata table, accepting MetaBool and
---- MetaInlines forms ("true", "yes", "1" are truthy).
---- @param value any The metadata value
---- @return boolean
-local function meta_to_bool(value)
-  if value == nil then
-    return false
-  end
-  if type(value) == 'boolean' then
-    return value
-  end
-  local text = pandoc.utils.stringify(value):lower()
-  return text == 'true' or text == 'yes' or text == '1'
-end
-
---- Reset module-level state and read options from document metadata.
+--- Reset module-level state before processing a document.
 --- @param meta pandoc.Meta
 --- @return pandoc.Meta
 local function read_meta(meta)
   css_injected = false
-  auto_number_counter = 0
-  auto_number = false
-  validate_indices = false
-
-  local options = meta.fragmention
-  if options then
-    auto_number = meta_to_bool(options['auto-number'])
-    validate_indices = meta_to_bool(options['validate'])
-  end
   return meta
 end
 
@@ -203,45 +160,6 @@ local function render_block_html(block)
 end
 
 -- ============================================================================
--- AUTO-NUMBERING AND VALIDATION
--- ============================================================================
-
---- Assign a sequential fragment index to a Span when auto-numbering is on
---- and no fragment-index is already set.
---- @param span pandoc.Span
-local function maybe_auto_number(span)
-  if not auto_number then
-    return
-  end
-  if span.attributes['fragment-index'] then
-    return
-  end
-  auto_number_counter = auto_number_counter + 1
-  span.attributes['fragment-index'] = tostring(auto_number_counter)
-end
-
---- Validate fragment indices in a Span against a per-slide ledger.
---- Warns on duplicate indices within the same slide and on mixed
---- present/absent indices on a slide. Treats every non-empty value as opaque
---- text so non-numeric indices are still compared structurally.
---- @param span pandoc.Span
---- @param ledger { seen: table<string, integer>, has_index: boolean, has_missing: boolean, slide: string }
-local function record_index(span, ledger)
-  local idx = span.attributes['fragment-index']
-  if idx == nil or idx == '' then
-    ledger.has_missing = true
-    return
-  end
-  ledger.has_index = true
-  local count = (ledger.seen[idx] or 0) + 1
-  ledger.seen[idx] = count
-  if count == 2 then
-    log.log_warning(EXTENSION_NAME,
-      'Duplicate fragment-index "' .. idx .. '" on slide "' .. ledger.slide .. '".')
-  end
-end
-
--- ============================================================================
 -- LIST PROCESSING (AST WALKER)
 -- ============================================================================
 
@@ -315,26 +233,6 @@ local function get_item_fragment_span(item)
   return nil
 end
 
---- Add a `.fragment` marker span (without indices) to an item if
---- auto-numbering is enabled and the item has no leading marker. This lets
---- authors enable bullets-as-fragments document-wide without per-item markup.
---- Returns the (possibly new) span, or nil if no marker should be added.
---- @param item table List of Blocks
---- @return pandoc.Span|nil
-local function inject_auto_marker(item)
-  if not auto_number then
-    return nil
-  end
-  local first_block = item[1]
-  if not first_block then
-    return nil
-  end
-  if first_block.t ~= 'Plain' and first_block.t ~= 'Para' then
-    return nil
-  end
-  return pandoc.Span({}, pandoc.Attr('', { 'fragment' }, {}))
-end
-
 --- Forward declarations for mutual recursion.
 local render_bullet_list_html, render_ordered_list_html
 
@@ -378,14 +276,7 @@ local function render_list_items_html(items)
   local lines = {}
   for _, item in ipairs(items) do
     local frag_span = get_item_fragment_span(item)
-    local had_marker = frag_span ~= nil
-    if not frag_span then
-      frag_span = inject_auto_marker(item)
-    end
-    if frag_span then
-      maybe_auto_number(frag_span)
-    end
-    local stripped = had_marker and strip_leading_fragment(item) or pandoc.Blocks(item)
+    local stripped = frag_span and strip_leading_fragment(item) or pandoc.Blocks(item)
     table.insert(lines,
       open_fragment_element('li', frag_span)
       .. render_item_html(stripped)
@@ -453,9 +344,6 @@ local function render_definition_list_html(list)
     table.insert(lines, '<dt>' .. render_inlines_html(pandoc.Inlines(term)) .. '</dt>')
     for _, definition in ipairs(definitions) do
       local frag_span = get_item_fragment_span(definition)
-      if frag_span then
-        maybe_auto_number(frag_span)
-      end
       local stripped = frag_span and strip_leading_fragment(definition) or pandoc.Blocks(definition)
       table.insert(lines,
         open_fragment_element('dd', frag_span)
@@ -560,61 +448,6 @@ local function process_table(el)
 end
 
 -- ============================================================================
--- SLIDE-SCOPED VALIDATION
--- ============================================================================
-
---- Walk a slide section's blocks once, collecting fragment indices found on
---- lists/definitions/blockquotes that this filter handles. Issues warnings on
---- duplicate indices and on slides that mix indexed and missing fragments.
---- @param section_blocks pandoc.Blocks
---- @param slide_title string
-local function validate_slide(section_blocks, slide_title)
-  if not validate_indices then
-    return
-  end
-  local ledger = { seen = {}, has_index = false, has_missing = false, slide = slide_title }
-
-  local function walk(blocks)
-    for _, block in ipairs(blocks) do
-      if block.t == 'BulletList' or block.t == 'OrderedList' then
-        for _, item in ipairs(block.content) do
-          local span = get_item_fragment_span(item)
-          if span then
-            record_index(span, ledger)
-          end
-          walk(item)
-        end
-      elseif block.t == 'DefinitionList' then
-        for _, item in ipairs(block.content) do
-          for _, definition in ipairs(item[2]) do
-            local span = get_item_fragment_span(definition)
-            if span then
-              record_index(span, ledger)
-            end
-            walk(definition)
-          end
-        end
-      elseif block.t == 'BlockQuote' then
-        local span = get_item_fragment_span(block.content)
-        if span then
-          record_index(span, ledger)
-        end
-        walk(block.content)
-      elseif block.t == 'Div' then
-        walk(block.content)
-      end
-    end
-  end
-
-  walk(section_blocks)
-
-  if ledger.has_index and ledger.has_missing then
-    log.log_warning(EXTENSION_NAME,
-      'Slide "' .. slide_title .. '" mixes fragments with and without an explicit fragment-index.')
-  end
-end
-
--- ============================================================================
 -- FILTER ENTRY POINT
 -- ============================================================================
 
@@ -623,35 +456,12 @@ return {
     Meta = read_meta,
   },
   {
-    Pandoc = function(doc)
-      if not is_revealjs() then
-        return nil
-      end
-      if not validate_indices then
-        return nil
-      end
-      local current_title = 'Untitled'
-      local current_blocks = pandoc.Blocks({})
-      for _, block in ipairs(doc.blocks) do
-        if block.t == 'Header' and block.level == 2 then
-          validate_slide(current_blocks, current_title)
-          current_title = pandoc.utils.stringify(block.content)
-          current_blocks = pandoc.Blocks({})
-        else
-          current_blocks:insert(block)
-        end
-      end
-      validate_slide(current_blocks, current_title)
-      return nil
-    end,
-  },
-  {
     traverse = 'topdown',
     BulletList = function(el)
       if not is_revealjs() then
         return el
       end
-      if not auto_number and not list_has_fragments(el.content) then
+      if not list_has_fragments(el.content) then
         return el
       end
       return pandoc.RawBlock('html', render_bullet_list_html(el)), false
@@ -660,7 +470,7 @@ return {
       if not is_revealjs() then
         return el
       end
-      if not auto_number and not list_has_fragments(el.content) then
+      if not list_has_fragments(el.content) then
         return el
       end
       return pandoc.RawBlock('html', render_ordered_list_html(el)), false
