@@ -1,0 +1,96 @@
+---
+title: "Examples"
+subtitle: "The source behind the deck."
+description: "Each element fragmention hoists onto, with the source that produces it and what the RevealJS preview does with it."
+---
+
+This page is HTML, and fragments only exist on slides, so the demonstration is the [RevealJS preview](preview.html) built by this same site.
+
+Its first two slides are the same list written both ways, which is the argument in one step: without the filter the bullets appear at once and the words trickle in; with it, each bullet arrives with its text.
+
+## The difference
+
+Without the filter, the fragment sits on the text:
+
+```markdown
+- [First item.]{.fragment fragment-index="1"}
+- [Second item.]{.fragment fragment-index="2"}
+```
+
+With it, an empty marker span sits at the start of the item:
+
+```markdown
+- []{.fragment fragment-index="1"} First item.
+- []{.fragment fragment-index="2"} Second item.
+```
+
+The rendered deck shows the second form producing `<li class="fragment" data-fragment-index="1">`, so RevealJS controls the item rather than a span inside it.
+
+## Nesting and ordered lists
+
+```markdown
+- []{.fragment fragment-index="1"} A parent item.
+  - []{.fragment fragment-index="2"} A nested item.
+  - []{.fragment fragment-index="3"} Another nested item.
+- A plain item, with no fragment at all.
+```
+
+```markdown
+1. []{.fragment fragment-index="1"} First step.
+2. []{.fragment fragment-index="2"} Second step.
+```
+
+An item with no marker span is left alone and is visible from the start.
+
+## Fragment styles
+
+```markdown
+- []{.fragment .fade-in fragment-index="1"} Fade in.
+- []{.fragment .highlight-red fragment-index="2"} Highlight red.
+- []{.fragment .grow fragment-index="3"} Grow.
+```
+
+Every RevealJS fragment class travels with the marker.
+
+## Definitions
+
+```markdown
+Spectroscopy
+: []{.fragment fragment-index="1"} A technique to analyse chemical composition.
+
+Chromatography
+: []{.fragment fragment-index="2"} A technique to separate mixtures.
+```
+
+The span is hoisted onto the `<dd>`, so the term and its definition reveal together, which is what a glossary or a question-and-answer slide wants.
+
+## Quotes
+
+```markdown
+> []{.fragment fragment-index="1"} The whole quote reveals as one.
+```
+
+Hoisted onto the `<blockquote>`.
+
+## Tables, through list-table
+
+```yaml
+filters:
+  - list-table
+  - fragmention
+```
+
+`list-table` consumes the empty spans itself, so it has to run first; fragmention then renames `fragment-index` to `data-fragment-index` on the table elements.
+
+```markdown
+::: {.list-table}
+
+- - []{.fragment fragment-index="1"} Name
+  - []{.fragment fragment-index="1"} Value
+
+:::
+```
+
+## Source
+
+The repository ships a short, standalone starting point you can copy: [`example.qmd`](https://github.com/mcanouil/quarto-revealjs-fragmention/blob/main/example.qmd).

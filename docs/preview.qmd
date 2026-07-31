@@ -1,0 +1,55 @@
+---
+title: "Fragmention in RevealJS"
+subtitle: "Whole items revealed, markers and all"
+format:
+  revealjs:
+    theme: default
+    slide-number: true
+---
+
+## Without the filter
+
+A bare `.fragment` on the text leaves the bullet behind, so the markers all appear at once and the list looks broken while it fills in.
+
+- [First item.]{.fragment fragment-index="1"}
+- [Second item.]{.fragment fragment-index="2"}
+- [Third item.]{.fragment fragment-index="3"}
+
+## With the filter
+
+An empty marker span at the start of the item is hoisted onto the item itself, so the bullet arrives with its text.
+
+- []{.fragment fragment-index="1"} First item.
+- []{.fragment fragment-index="2"} Second item.
+- []{.fragment fragment-index="3"} Third item.
+
+## Nested lists
+
+- []{.fragment fragment-index="1"} A parent item.
+  - []{.fragment fragment-index="2"} A nested item.
+  - []{.fragment fragment-index="3"} Another nested item.
+- A plain item, with no fragment at all.
+
+## Ordered lists
+
+1. []{.fragment fragment-index="1"} First step.
+2. []{.fragment fragment-index="2"} Second step.
+3. []{.fragment fragment-index="3"} Third step.
+
+## Fragment styles
+
+- []{.fragment .fade-in fragment-index="1"} Fade in.
+- []{.fragment .highlight-red fragment-index="2"} Highlight red.
+- []{.fragment .grow fragment-index="3"} Grow.
+
+## Definitions
+
+Spectroscopy
+: []{.fragment fragment-index="1"} A technique to analyse chemical composition.
+
+Chromatography
+: []{.fragment fragment-index="2"} A technique to separate mixtures.
+
+## Quotes
+
+> []{.fragment fragment-index="1"} The whole quote reveals as one.

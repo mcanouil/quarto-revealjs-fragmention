@@ -1,0 +1,73 @@
+---
+title: "Reference"
+subtitle: "Everything the fragmention extension hoists."
+description: "The complete fragmention behaviour: the marker span, the elements it is hoisted onto, the fragment classes, and the list-table ordering."
+---
+
+## Enabling the filter
+
+```yaml
+filters:
+  - fragmention
+```
+
+There is nothing to configure.
+
+## The marker span
+
+An empty span at the start of an element:
+
+```markdown
+- []{.fragment fragment-index="1"} The item text.
+```
+
+The span is removed, and its classes and attributes are applied to the element that contained it.
+
+| Attribute | Type | Description |
+| --- | --- | --- |
+| `fragment-index` | string | The RevealJS fragment order. Rewritten to `data-fragment-index` on the target element. |
+
+: The attribute on a marker span. {.striped .hover tbl-colwidths="[22,12,66]"}
+
+Any RevealJS fragment class can travel with it.
+
+## Where it is hoisted to
+
+| Written in | Lands on | Effect |
+| --- | --- | --- |
+| A list item | `<li>` | The bullet or number appears with the text. |
+| A definition | `<dd>` | The definition and its term reveal together. |
+| A blockquote | `<blockquote>` | The whole quote reveals as one. |
+| A `list-table` cell or row | The cell or row | The whole cell or row reveals as one. |
+
+: The four targets. {.striped .hover tbl-colwidths="[26,20,54]"}
+
+Ordered and unordered lists behave alike, and nesting works: a nested item takes its own marker span.
+
+## Fragment classes
+
+Every RevealJS fragment class is carried across:
+
+```markdown
+- []{.fragment .fade-in fragment-index="1"} Fade in.
+- []{.fragment .highlight-red fragment-index="2"} Highlight red.
+- []{.fragment .grow fragment-index="3"} Grow.
+```
+
+## With list-table
+
+[`pandoc-ext/list-table`](https://github.com/pandoc-ext/list-table) consumes empty spans at the start of cells and rows itself, so it has to run first:
+
+```yaml
+filters:
+  - list-table
+  - fragmention
+```
+
+Fragmention then renames `fragment-index` to `data-fragment-index` on the table elements, which is what RevealJS reads.
+
+## Limitations
+
+- RevealJS only.
+- The marker span must be empty and must come first; a span in the middle of an item is left as an ordinary fragment on that text.
+- With `list-table`, the order of the two filters matters.
