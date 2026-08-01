@@ -55,6 +55,8 @@ The span is removed and its classes and attributes land on the item, so RevealJS
 This site is HTML, and the filter only matters where fragments do.
 The [RevealJS preview](preview.html) is a deck built by this same site; its first two slides are the same list with and without the filter, which is the whole argument in one step.
 
+![](preview.html){.embed-art loading="lazy" title="A deck revealing whole list items" style="--atelier-embed-art-ratio: 1.78;"}
+
 See the [Reference](reference.qmd) for every element it handles, and the [Examples](examples.qmd) for the source behind each slide.
 
 ## Where it works
