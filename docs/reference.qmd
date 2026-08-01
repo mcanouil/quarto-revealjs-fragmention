@@ -21,15 +21,17 @@ An empty span at the start of an element:
 - []{.fragment fragment-index="1"} The item text.
 ```
 
-The span is removed, and its classes and attributes are applied to the element that contained it.
+The span is removed, and what it carried is written onto the element that contained it.
+Classes become the element's `class`, the identifier becomes its `id`, and every attribute is written with a `data-` prefix.
 
 | Attribute | Type | Description |
 | --- | --- | --- |
-| `fragment-index` | string | The RevealJS fragment order. Rewritten to `data-fragment-index` on the target element. |
+| `fragment-index` | string | The RevealJS fragment order. Written as `data-fragment-index` on the target element. |
 
 : The attribute on a marker span. {.striped .hover tbl-colwidths="[22,12,66]"}
 
-Any RevealJS fragment class can travel with it.
+The `data-` prefix is applied to every attribute, not to `fragment-index` alone, so an attribute already written as `data-something` becomes `data-data-something`.
+Any RevealJS fragment class can travel with the marker.
 
 ## Where it is hoisted to
 
@@ -65,6 +67,10 @@ filters:
 ```
 
 Fragmention then renames `fragment-index` to `data-fragment-index` on the table elements, which is what RevealJS reads.
+The rename applies to a cell or row that carries the `fragment` class; one without it is left alone.
+
+When a table is rewritten this way, the filter also adds a stylesheet that makes the borders of a row transparent for as long as that row is still hidden.
+RevealJS hides a fragment by making it transparent rather than by removing it, so without this the row's borders draw an empty band on the slide before it arrives.
 
 ## Limitations
 
