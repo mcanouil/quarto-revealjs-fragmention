@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Documentation
+
+- docs: Add a documentation website under `docs/`, built on the `atelier` project type and published to <https://m.canouil.dev/quarto-revealjs-fragmention/>, including a Reveal.js deck whose first two slides are the same list with and without the filter.
+- docs: Correct the rendered-output link, which pointed at `quarto-fragmention` rather than this repository.
+- docs: Trim `README.md` to a landing page pointing at the website, and `example.qmd` to a short starting point to copy.
+- docs: Add the Pages workflow, which renders `docs/` on pull requests and deploys it from the release tag.
+- docs: Add the Quarto Extensions Updates workflow, scanning `docs` for the website's own dependencies.
+
 ### Bug Fixes
 
 - fix: Strip every leading whitespace token (`Space`, `SoftBreak`, `LineBreak`) after removing the empty fragment marker, not just the first one, so marker spans on their own line do not leave whitespace artefacts.

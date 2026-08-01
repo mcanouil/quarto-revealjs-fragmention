@@ -7,139 +7,34 @@ authors:
     url: "https://mickael.canouil.fr"
 format:
   revealjs:
-    output-file: index
 filters:
   - fragmention
 ---
 
-## Unordered List
+## Without the filter
 
-- []{.fragment fragment-index="1"} Technique spectroscopique permettant d'analyser :
-  - []{.fragment fragment-index="2"} la composition chimique.
-  - []{.fragment fragment-index="3"} la structure moléculaire.
+A fragment on the text leaves the bullet behind, so the markers appear at once.
 
-## Ordered List
+- [First item.]{.fragment fragment-index="1"}
+- [Second item.]{.fragment fragment-index="2"}
 
-1. []{.fragment fragment-index="1"} Prepare samples.
-2. []{.fragment fragment-index="2"} Run analysis.
-3. []{.fragment fragment-index="3"} Interpret results.
+## With the filter
 
-## Fragment Styles
+An empty marker span at the start of the item is hoisted onto the item itself.
 
-- []{.fragment .fade-in fragment-index="1"} Fade in.
-- []{.fragment .highlight-red fragment-index="2"} Highlight red.
-- []{.fragment .grow fragment-index="3"} Grow.
+- []{.fragment fragment-index="1"} First item.
+- []{.fragment fragment-index="2"} Second item.
+- A plain item, with no fragment.
 
-## Definition List
+## Definitions and quotes
 
-Spectroscopie IR
-: []{.fragment fragment-index="1"} Identification de groupes fonctionnels.
+Spectroscopy
+: []{.fragment fragment-index="1"} Revealed with its term.
 
-Spectroscopie UV-Vis
-: []{.fragment fragment-index="2"} Analyse de chromophores.
+> []{.fragment fragment-index="2"} The whole quote reveals as one.
 
-Spectrométrie de masse
-: []{.fragment fragment-index="3"} Détermination de masse moléculaire.
+## More
 
-## Blockquote
+Every RevealJS fragment class travels with the marker, and `list-table` cells work too when that filter runs first.
 
-> []{.fragment fragment-index="1"} La spectroscopie révèle la composition chimique.
-
-## Mixed List
-
-- A normal item without a fragment.
-- []{.fragment fragment-index="1"} A fragment item.
-- Another normal item.
-- []{.fragment fragment-index="2"} Another fragment item.
-
-## List-Table with Row Fragments
-
-::: {.list-table}
-- - **Technique**
-  - **Application**
-
-- []{.fragment fragment-index="1"}
-  - Spectroscopie IR
-  - Identification de groupes fonctionnels.
-
-- []{.fragment fragment-index="2"}
-  - Spectroscopie UV-Vis
-  - Analyse de chromophores.
-
-- []{.fragment fragment-index="3"}
-  - Spectrométrie de masse
-  - Détermination de masse moléculaire.
-:::
-
-## List-Table with Cell Fragments
-
-::: {.list-table}
-- - **Technique**
-  - **Application**
-
-- - []{.fragment fragment-index="1"} Spectroscopie IR
-  - []{.fragment fragment-index="2"} Identification de groupes fonctionnels.
-
-- - []{.fragment fragment-index="1"} Spectroscopie UV-Vis
-  - []{.fragment fragment-index="2"} Analyse de chromophores.
-
-- - []{.fragment fragment-index="3"} Spectrométrie de masse
-  - []{.fragment fragment-index="3"} Détermination de masse moléculaire.
-:::
-
-## Fragments Without Indices
-
-When no `fragment-index` is set, fragments reveal in source order.
-This is useful for short lists where ordering is obvious.
-
-- []{.fragment} Step one.
-- []{.fragment} Step two.
-- []{.fragment} Step three.
-
-## Two-column Layout
-
-::: {layout-ncol="2"}
-
-- []{.fragment fragment-index="1"} Technique spectroscopique permettant d'analyser :
-  - []{.fragment fragment-index="2"} la composition chimique.
-  - []{.fragment fragment-index="3"} la structure moléculaire.
-
-[{{< placeholder 600 400 >}}]{.fragment fragment-index="2"}
-:::
-
-## Complex Fragments {.smaller}
-
-::: {layout="[[1, 1], [1, 2]]"}
-
-- []{.fragment fragment-index="1"} Technique spectroscopique permettant d'analyser :
-  - []{.fragment fragment-index="2"} la composition chimique.
-  - []{.fragment fragment-index="3"} la structure moléculaire.
-
-::: {.list-table .fragment fragment-index="2"}
-- - **Technique**
-  - **Application**
-
-- - []{.fragment fragment-index="3"} Spectroscopie IR
-  - []{.fragment fragment-index="3"} Identification de groupes fonctionnels.
-
-- - []{.fragment fragment-index="4"} Spectroscopie UV-Vis
-  - []{.fragment fragment-index="4"} Analyse de chromophores.
-
-- - []{.fragment fragment-index="5"} Spectrométrie de masse
-  - []{.fragment fragment-index="5"} Détermination de masse moléculaire.
-:::
-
-::: {.r-stack}
-::: {.fragment fragment-index="1" data-id="box1" style="background: #2780e3; width: 350px; height: 350px; border-radius: 200px;"}
-:::
-
-::: {.fragment fragment-index="3" data-id="box2" style="background: #3fb618; width: 250px; height: 250px; border-radius: 200px;"}
-:::
-
-::: {.fragment fragment-index="5" data-id="box3" style="background: #e83e8c; width: 150px; height: 150px; border-radius: 200px;"}
-:::
-:::
-
-[{{< placeholder 600 400 >}}]{.fragment fragment-index="2"}
-
-:::
+Full documentation: <https://m.canouil.dev/quarto-revealjs-fragmention/>.
