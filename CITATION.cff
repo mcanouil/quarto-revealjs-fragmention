@@ -9,5 +9,5 @@ authors:
 repository-code: "https://github.com/mcanouil/quarto-revealjs-fragmention"
 url: "https://m.canouil.dev/quarto-fragmention/"
 license: "MIT License"
-date-released: "2026-05-24"
-version: 0.2.0
+date-released: "2026-08-01"
+version: 0.2.1
