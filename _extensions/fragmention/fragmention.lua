@@ -1,5 +1,5 @@
 --- Fragmention - Filter
---- @module fragmention
+--- @module "fragmention"
 --- @license MIT License
 --- @copyright 2026 Mickaël Canouil
 --- @author Mickaël Canouil
